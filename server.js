@@ -45,9 +45,9 @@ app.get("/login", async (req, res) => {
 
     try {
         connection.query(
-            `SELECT *, 'user' as source FROM user  WHERE Phone = ? AND password = ?
+            `SELECT * FROM Users  WHERE Phone = ? AND password = ?
             UNION
-            SELECT *, 'rider' as source FROM rider WHERE Phone = ? AND password = ?`,
+            SELECT * FROM Riders WHERE Phone = ? AND password = ?`,
             [Phone, password],
             (err, results, fields) => {
                 if (err) {
