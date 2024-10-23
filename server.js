@@ -6,9 +6,9 @@ app.use(express.json());
 
 const connection = mysql.createConnection({
     host: '202.28.34.197',
-    user: 'web66_65011212185',
-    password: '65011212185@csmsu',
-    database: 'web66_65011212185'
+    user: 'web66_65011212167',
+    password: '65011212167@csmsu',
+    database: 'web66_65011212167'
 })
 
 connection.connect((err) => {
@@ -20,12 +20,12 @@ connection.connect((err) => {
 })
 
 app.post("/register", async (req, res) => {
-    const {Fname, Lname, Phone, password, address, Laddress, Loaddress} = req.body;
+    const {Fname, Lname, Phone, password, address, Lati, Longti, image} = req.body;
 
     try {
         connection.query(
-            "INSERT INTO Users(Fname, Lname, Phone, password, address, Laddress, Loaddress) VALUES(?, ?, ?, ?, ?, ?, ?)",
-            [Fname, Lname, Phone, password, address, Laddress, Loaddress],
+            "INSERT INTO Users(Fname, Lname, Phone, password, address, Lati, Longti, image, type) VALUES(?, ?, ?, ?, ?, ?, ?, ?, 1)",
+            [Fname, Lname, Phone, password, address, Lati, Longti, image],
             (err, results, fields) => {
                 if (err) {
                     console.log("ERROR ",err);
@@ -39,6 +39,39 @@ app.post("/register", async (req, res) => {
         return res.status(500).send();
     }
 })
+
+app.get("/login", async (req, res) => {
+    const { Phone, password } = req.body; // ตรวจสอบให้แน่ใจว่ามี req.body
+
+    try {
+        connection.query(
+            `SELECT *, 'user' as source FROM user  WHERE Phone = ? AND password = ?
+            UNION
+            SELECT *, 'rider' as source FROM rider WHERE Phone = ? AND password = ?`,
+            [Phone, password],
+            (err, results, fields) => {
+                if (err) {
+                    console.log("ERROR ", err);
+                    return res.status(400).json(err);
+                }
+                
+                // ตรวจสอบว่ามีผลลัพธ์หรือไม่
+                if (results.length > 0) {
+                    // ส่งข้อมูลผู้ใช้กลับไป
+                    return res.status(200).json(results[0]); // ส่งข้อมูลผู้ใช้ที่พบ
+                } else {
+                    // ไม่พบผู้ใช้
+                    return res.status(401).json({ message: "Invalid phone or password." });
+                }
+            }
+        );
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send();
+    }
+});
+
+
 
 app.get("/get", async (req, res) => {
     try {
