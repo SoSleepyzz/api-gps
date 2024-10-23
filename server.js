@@ -43,12 +43,16 @@ app.post("/register", async (req, res) => {
 app.get("/login", async (req, res) => {
     const { Phone, password } = req.body; // ตรวจสอบให้แน่ใจว่ามี req.body
 
+    if (!Phone || !password) {
+        return res.status(400).json({ message: "Phone and password are required." });
+    }
+
     try {
         connection.query(
-            `SELECT * FROM Users  WHERE Phone = ? AND password = ?
-            UNION
+            `SELECT * FROM Users WHERE Phone = ? AND password = ?
+            UNION ALL
             SELECT * FROM Riders WHERE Phone = ? AND password = ?`,
-            [Phone, password],
+            [Phone, password, Phone, password],
             (err, results, fields) => {
                 if (err) {
                     console.log("ERROR ", err);
@@ -70,6 +74,8 @@ app.get("/login", async (req, res) => {
         return res.status(500).send();
     }
 });
+
+
 
 
 
